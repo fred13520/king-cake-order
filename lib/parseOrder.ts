@@ -70,8 +70,10 @@ export function parseOrderText(text: string, nickname?: string): ParsedOrder {
   if (!sizeMatch) missingFields.push("蛋糕尺寸");
   if (!blessing) riskNotes.push("未识别到祝福语，可后续确认");
 
-  return {
-    customerName: nickname || "",
+ const nameMatch = t.match(/(?:客户姓名|姓名|名字|Name)[:：]?\s*([^\n\r]+)/i);
+
+return {
+  customerName: nameMatch?.[1]?.trim() || nickname || "",
     customerPhone: phone,
     orderDate,
     deliveryTime,
