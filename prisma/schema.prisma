@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Order {
+  id              String    @id @default(cuid())
+  orderNumber     String    @unique
+  sourceChannel   String?
+  customerName    String?
+  customerNickname String?
+  customerPhone   String?
+  orderDate       DateTime?
+  deliveryTime    String?
+  orderType       String    @default("delivery")
+  deliveryAddress String?
+  pickupStore     String?
+  totalPrice      Float?
+  paymentStatus   String    @default("未付款")
+  paymentMethod   String?
+  orderStatus     String    @default("待确认")
+  createdBy       String?
+  rawChatText     String
+  internalNote    String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  cake            Cake?
+  flower          Flower?
+  delivery        Delivery?
+  payments        Payment[]
+}
+
+model Cake {
+  id                String  @id @default(cuid())
+  orderId           String  @unique
+  cakeSize          String?
+  cakeWeightLb      Float?
+  cakeShape         String?
+  cakeTheme         String?
+  cakeColor         String?
+  creamType         String?
+  filling           String  @default("新鲜芒果 + 新鲜火龙果")
+  cakeFlavor        String?
+  blessingText      String?
+  candle            String  @default("默认赠送")
+  birthdaySet       String  @default("默认赠送")
+  specialRequest    String?
+  referenceImageUrl String?
+  productionStatus  String  @default("待制作")
+
+  order             Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model Flower {
+  id            String  @id @default(cuid())
+  orderId       String  @unique
+  flowerType    String?
+  flowerColor   String?
+  flowerBudget  Float?
+  flowerMessage String?
+  flowerStatus  String  @default("不需要")
+
+  order         Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model Delivery {
+  id              String    @id @default(cuid())
+  orderId          String    @unique
+  deliveryDate     DateTime?
+  deliveryTime     String?
+  deliveryAddress  String?
+  driverName       String?
+  deliveryFee      Float?
+  deliveryStatus   String    @default("待配送")
+  cashOnDelivery   Boolean   @default(false)
+  deliveryNote     String?
+
+  order            Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model Payment {
+  id              String    @id @default(cuid())
+  orderId          String
+  amount           Float?
+  paymentMethod    String?
+  paymentStatus    String    @default("未付款")
+  paidAt           DateTime?
+  paymentProofUrl  String?
+
+  order            Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
